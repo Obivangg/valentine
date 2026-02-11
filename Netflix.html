@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Христина & Вадим</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Martel+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        :root {
+            --netflix-red: #E50914;
+            --bg-black: #141414;
+            --text-white: #fff;
+            --gray: #808080;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-black);
+            color: var(--text-white);
+            font-family: 'Martel Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- PROFILE SELECTION --- */
+        #profile-gate {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            background: #141414;
+            z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s ease;
+        }
+
+        .profile-title { font-size: 3rem; margin-bottom: 30px; font-weight: 400; }
+
+        .profile-container {
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .profile-container:hover { transform: scale(1.05); }
+
+        .avatar-frame {
+            width: 160px; height: 160px; border-radius: 4px;
+            overflow: hidden; border: 3px solid transparent;
+            margin-bottom: 15px;
+        }
+        
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+
+        .profile-container:hover .avatar-frame { border: 3px solid white; }
+        .profile-name { color: var(--gray); font-size: 1.5rem; }
+        .profile-container:hover .profile-name { color: white; }
+
+        /* --- MAIN SITE --- */
+        #main-site { display: none; opacity: 0; transition: opacity 1.5s ease; }
+
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 15px 4%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            z-index: 100; display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { color: var(--netflix-red); font-family: 'Bebas Neue'; font-size: 2.8rem; }
+
+        .hero {
+            position: relative; height: 90vh;
+            background: url('IMG_1900.jpg') center/cover no-repeat;
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, #141414 5%, transparent 50%),
+                        linear-gradient(to right, #141414 15%, transparent 60%);
+        }
+        .hero-content { position: absolute; bottom: 20%; left: 4%; max-width: 650px; }
+        .hero-title { font-family: 'Bebas Neue'; font-size: 8rem; line-height: 0.8; margin-bottom: 20px; }
+        
+        .btn { border: none; padding: 12px 30px; font-size: 1.2rem; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-play { background: white; color: black; transition: 0.3s; }
+        .btn-play:hover { background: var(--netflix-red); color: white; }
+
+        /* --- EPISODES --- */
+        .section-title { margin: 40px 0 20px 4%; font-size: 1.8rem; font-weight: bold; }
+        .episodes-list { padding: 0 4%; display: flex; flex-direction: column; gap: 10px; max-width: 900px; }
+
+        .episode {
+            display: flex; align-items: center; padding: 15px;
+            background: rgba(47, 47, 47, 0.5); border-radius: 4px; cursor: pointer;
+            transition: 0.3s;
+        }
+        .episode:hover { background: rgba(64, 64, 64, 0.8); transform: translateX(10px); }
+        
+        .ep-number { font-size: 1.8rem; color: #555; margin-right: 25px; min-width: 30px; text-align: center; }
+        .ep-img-container { width: 160px; height: 90px; margin-right: 20px; flex-shrink: 0; overflow: hidden; border-radius: 4px; }
+        .ep-img { width: 100%; height: 100%; object-fit: cover; }
+        .ep-info h4 { font-size: 1.2rem; margin-bottom: 5px; }
+        .ep-info p { font-size: 0.9rem; color: #999; }
+
+        /* --- QUOTES --- */
+        .quotes-section { padding: 80px 4%; text-align: center; background: linear-gradient(to bottom, #141414, #000); }
+        .quote-item { margin-bottom: 50px; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .quote-item p { font-style: italic; font-size: 1.6rem; color: #ddd; margin-bottom: 15px; line-height: 1.4; }
+        .quote-item span { color: var(--netflix-red); font-weight: bold; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .footer-msg { padding: 100px 4% 50px; text-align: center; }
+
+        /* --- HEARTS ANIMATION --- */
+        .heart { position: fixed; font-size: 25px; pointer-events: none; z-index: 10000; animation: flyUp 1.5s linear forwards; }
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-200px) scale(1.5) rotate(25deg); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 5rem; }
+            .ep-img-container { width: 120px; height: 70px; }
+            .quote-item p { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="intro-sound"><source src="https://www.myinstants.com/media/sounds/netflix-intro-sound.mp3" type="audio/mpeg"></audio>
+    <audio id="bg-music" loop><source src="https://cdn.pixabay.com/download/audio/2022/10/05/audio_6647d80295.mp3?filename=romantic-piano-123264.mp3" type="audio/mpeg"></audio>
+
+    <div id="profile-gate">
+        <h2 class="profile-title">Хто дивиться?</h2>
+        <div class="profile-container" onclick="enterNetflix()">
+            <div class="avatar-frame">
+                <img src="IMG_4968.JPG" class="avatar-img">
+            </div>
+            <div class="profile-name">Христина</div>
+        </div>
+    </div>
+
+    <div id="main-site">
+        <nav>
+            <div class="logo">NETFLIX</div>
+            <img src="IMG_4968.JPG" width="35" height="35" style="border-radius:4px; object-fit: cover;">
+        </nav>
+
+        <div class="hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                    <i class="fas fa-heart" style="color: var(--netflix-red); font-size: 1.4rem; margin-right: 10px;"></i>
+                    <span style="font-weight: bold; letter-spacing: 1px;">№1 У ТВОЄМУ СЕРЦІ СЬОГОДНІ</span>
+                </div>
+                <h1 class="hero-title">МИ</h1>
+                <p style="font-size:1.3rem; margin-bottom:25px; color: #eee; max-width: 550px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                    Це не просто серіал. Це історія про те, як випадковість стала долею. Найкращий вибір критиків та мільйони спільних щасливих моментів.
+                </p>
+                <button class="btn btn-play" onclick="scrollToSection('episodes-section')">▶ ДИВИТИСЯ ЗАРАЗ</button>
+            </div>
+        </div>
+
+        <h3 class="section-title">Сезон 1: Наші моменти</h3>
+        <div class="episodes-list" id="episodes-section">
+            <div class="episode">
+                <div class="ep-number">1</div>
+                <div class="ep-img-container"><img src="IMG_0179.jpg" class="ep-img"></div>
+                <div class="ep-info">
+                    <h4>Початок нашої пригоди</h4>
+                    <p>42 хв. • Епізод, де все тільки починалося і світ став іншим.</p>
+                </div>
+            </div>
+            <div class="episode">
+                <div class="ep-number">2</div>
+                <div class="ep-img-container"><img src="IMG_1745.jpg" class="ep-img"></div>
+                <div class="ep-info">
+                    <h4>Найкращі спогади разом</h4>
+                    <p>50 хв. • Про найтепліші дні, спільні подорожі та щирий сміх.</p>
+                </div>
+            </div>
+            <div class="episode">
+                <div class="ep-number">3</div>
+                <div class="ep-img-container"><img src="IMG_1811.jpg" class="ep-img"></div>
+                <div class="ep-info">
+                    <h4 style="color: var(--netflix-red);">Справжнє кохання</h4>
+                    <p>Безкінечно • Найголовніший епізод, де слова стають зайвими.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="quotes-section">
+            <h3 class="section-title" style="text-align: center; margin-left: 0; margin-bottom: 60px;">Топ цитат сезону</h3>
+            
+            <div class="quote-item">
+                <p>"Кохання — це не просто дивитися один на одного, це дивитися разом в одному напрямку."</p>
+                <span>– Сент-Екзюпері</span>
+            </div>
+
+            <div class="quote-item">
+                <p>"Ти — мій найкращий вибір у житті, мій спокій і моє натхнення щодня."</p>
+                <span>– Твій Вадим</span>
+            </div>
+
+            <div class="quote-item">
+                <p>"Бути з тобою — це як дивитися улюблений фільм на повторі: ніколи не набридає і завжди викликає усмішку."</p>
+                <span>– Ми</span>
+            </div>
+            
+            <div class="quote-item">
+                <p>"Щастя — це коли кожна мить поруч з тобою стає вічністю."</p>
+                <span>– Our Forever</span>
+            </div>
+        </div>
+
+        <div class="footer-msg">
+            <h2 style="font-family: 'Bebas Neue'; font-size: 3rem; letter-spacing: 4px;">ДАЛІ БУДЕ...</h2>
+            <p style="color:#808080; margin-top: 20px; font-size: 1.1rem;">Ти — мій найкращий сценарій. З Днем закоханих!</p>
+            <p style="font-size: 0.8rem; color: #444; margin-top: 40px;">&copy; 2026 Твій Вадим. Всі права на моє серце належать тобі.</p>
+        </div>
+    </div>
+
+    <script>
+        function enterNetflix() {
+            const intro = document.getElementById("intro-sound");
+            intro.volume = 0.4;
+            intro.play();
+
+            document.getElementById('profile-gate').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('profile-gate').style.display = 'none';
+                const site = document.getElementById('main-site');
+                site.style.display = 'block';
+                setTimeout(() => site.style.opacity = '1', 50);
+                
+                const music = document.getElementById("bg-music");
+                music.volume = 0.15;
+                music.play().catch(e => console.log("Music blocked by browser policy"));
+            }, 1000);
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({behavior: 'smooth'});
+        }
+
+        document.addEventListener('click', function(e) {
+            if (document.getElementById('main-site').style.display === 'block') {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = (e.clientX - 10) + 'px';
+                heart.style.top = (e.clientY - 10) + 'px';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 1500);
+            }
+        });
+    </script>
+</body>
+</html>
